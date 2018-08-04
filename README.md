@@ -38,15 +38,25 @@ local myDeck = Decker.Deck({cardFour, cardOne, cardOne, cardTwo, cardTwo})
 -- let's do some testing when any chat message is sent
 function onChat()
     -- spawn two of our decks (e.g. for each player)
-    myDeck:spawn({position = {-5, 3, 0}})
-    myDeck:spawn({position = {5, 3, 0}})
+    myDeck:spawn({position = {-4, 3, 0}})
+    myDeck:spawn({position = {4, 3, 0}})
     
     -- spawn a single card
-    cardFour:spawn({positions = {0, 3, 3}})
+    cardFour:spawn({positions = {0, 3, 6}})
+    
+    -- -- -- --
+    -- ADVANCED SECTION (for those comfortable wih Lua)
+
+    -- we can use DeckerDeck methods to modify it
+    -- let's remove cardOne's from it (index 2 and 3)
+    myDeck:remove(2, 3)
+    -- now let's swap first and last card so it's {cardTwo, cardTwo, cardFour} and spawn it
+    -- negative index (anywhere in methods) means counting from the end down
+    myDeck:swap(1, -1):spawn({0, 3, 0})
     
     -- all :spawn methods return a regular object - proceed like with anything
-    local someDeck = myDeck:spawn({position = {0, 3, -3}})
-    someDeck.shuffle()
+    local someDeck = myDeck:spawn({position = {0, 3, -6}})
+    someDeck.highlightOn({0, 0, 1}, 10)
     someDeck.setName('this is some deck')
     -- for convenience, stuff like name/description/xmlui can be assigned to stuff before spawning
     --  to avoid calls like setName above - see spawnParams in full reference section
@@ -92,21 +102,35 @@ end
   * Inserts a ``DeckerCard`` into a ``DeckerDeck``
   * Arg ``card``: DeckerCard to be inserted in the deck
   * Arg ``index``: index at which the card is inserted (shifting others up)
+    * Negative index means couning from last down
   * Returns ``self`` for chaining methods
   
 * ``DeckerDeck:remove(int index)``
   * Removes a card from ``DeckerDeck``
   * Arg ``index``: index at which a card is removed (shifting others down)
+    * Negative index means couning from last down
+  * Returns ``self`` for chaining methods
+  
+* ``DeckerDeck:removeMany(int index1, int index2, ...)``
+  * Removes many cards from ``DeckerDeck`` so you don't have to keep shifting down indices in mind
+  * Args ``indexN``: indices at which cards are removed (shifting others down)
+    * No shifting between indices in the call (use deck:removeMany(1, 2, 3) to remove first 3 cards)
+    * Negative index means couning from last down
   * Returns ``self`` for chaining methods
   
 * ``DeckerDeck:swap(int indexOne, int indexTwo)``
   * Swaps card positions in ``DeckerDeck``
   * Arg ``indexOne``, ``indexTwo``: indices at which cards positions are swapped with each other
+    * Negative indices means couning from last down
   * Returns ``self`` for chaining methods
   
 * ``DeckerDeck:reverse()``
   * Reverses a ``DeckerDeck`` card order (basically swapping cards end-to-end)
   * Returns ``self`` for chaining methods
+  
+* ``DeckerDeck:copy()``
+  * Copies a deck object (e.g. to modify it and keep original one too)
+  * Returns a copy of ``safe`` (same contents but can be modified separately)
   
   
 ### Common Params Table
