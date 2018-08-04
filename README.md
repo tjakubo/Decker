@@ -22,7 +22,7 @@ local cardBack = 'https://i.imgur.com/KQtQGE7.png'
 -- define a new asset from face/back links, add width/height (since these default to 1x1)
 local cardAsset = Decker.Asset(cardFaces, cardBack, {width = 2, height = 2})
 
--- define cards on the asset, skipping three because we can
+-- define cards on the asset, skipping three because we can (would be row 2, column 1)
 local cardOne = Decker.Card(cardAsset, 1, 1) -- (asset, row, column)
 local cardTwo = Decker.Card(cardAsset, 1, 2) 
 local cardFour = Decker.Card(cardAsset, 2, 2) 
