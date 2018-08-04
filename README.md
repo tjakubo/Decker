@@ -86,8 +86,8 @@ end
   
 * ``Decker.Deck(table cards, table commonParams)``
   * Creates (but not spawns yet!) a new ``DeckerDeck`` object that defines a deck
-  * Arg ``cards``: table of ``DeckerCard`` this deck consists of (order is preserved)
-  * Arg ``commonParams`` (optional) table of object properties, see "Common Params Table" section
+  * Arg ``cards``: table of ``DeckerCard`` this deck consists, also see [Indexing and order]
+  * Arg ``commonParams`` (optional) table of object properties, see [Common Params Table] section
   * Returns created ``DeckerDeck`` object
   
 #### Object methods
@@ -101,27 +101,24 @@ end
 * ``DeckerDeck:insert(DeckerCard card, int index)``
   * Inserts a ``DeckerCard`` into a ``DeckerDeck``
   * Arg ``card``: DeckerCard to be inserted in the deck
-  * Arg ``index``: index at which the card is inserted (shifting others up)
-    * Negative index means couning from last down
+  * Arg ``index``: index at which the card is inserted (shifting others up), also see [Indexing and order]
   * Returns ``self`` for chaining methods
   
 * ``DeckerDeck:remove(int index)``
   * Removes a card from ``DeckerDeck``
-  * Arg ``index``: index at which a card is removed (shifting others down)
+  * Arg ``index``: index at which a card is removed (shifting others down), also see [Indexing and order]
     * Negative index means couning from last down
   * Returns ``self`` for chaining methods
   
 * ``DeckerDeck:removeMany(int index1, int index2, ...)``
   * Removes many cards from ``DeckerDeck`` so you don't have to keep shifting down indices in mind
-  * Args ``indexN``: indices at which cards are removed (shifting others down)
+  * Args ``indexN``: indices at which cards are removed (shifting others down), also see [Indexing and order]
     * No shifting between indices in the call (use deck:removeMany(1, 2, 3) to remove first 3 cards)
-    * Negative index means couning from last down
   * Returns ``self`` for chaining methods
   
 * ``DeckerDeck:swap(int indexOne, int indexTwo)``
   * Swaps card positions in ``DeckerDeck``
-  * Arg ``indexOne``, ``indexTwo``: indices at which cards positions are swapped with each other
-    * Negative indices means couning from last down
+  * Arg ``indexOne``, ``indexTwo``: indices at which cards positions are swapped with each other, [Indexing and order]
   * Returns ``self`` for chaining methods
   
 * ``DeckerDeck:reverse()``
@@ -130,8 +127,11 @@ end
   
 * ``DeckerDeck:copy()``
   * Copies a deck object (e.g. to modify it and keep original one too)
-  * Returns a copy of ``safe`` (same contents but can be modified separately)
+  * Returns a copy of ``self`` (same contents but can be modified separately)
   
+### Indexing and order
+
+When creating a deck using ``Decker.Deck(cards)``, cards from the ``cards`` table are kept in order. That is, first 
   
 ### Common Params Table
 
