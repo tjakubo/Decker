@@ -97,6 +97,13 @@ end
   * Arg ``commonParams`` (optional) table of object properties, see [Common Params Table] section
   * Returns created ``DeckerDeck`` object
   
+* ``Decker.AssetDeck(asset deckAsset, int cardsNum, table commonParams)
+  * Creates (but not spawns yet!) a new ``DeckerDeck`` object that defines a deck from single asset (skipping Decker.Card)
+  * Arg ``deckAsset``: an asset used for cards in this deck
+  * Arg ``cardsNum``: number of cards in this deck (goes sequentially over cards in asset, row by row)
+  * Arg ``commonParams`` (optional) table of object properties, see [Common Params Table] section
+  * Returns created ``DeckerDeck`` object
+  
 #### Object methods
 
 * ``DeckerCard:spawn(table spawnParams) and DeckerDeck:spawn(table spawnParams)``
@@ -135,6 +142,11 @@ end
 * ``DeckerDeck:copy()``
   * Copies a deck object (e.g. to modify it and keep original one too)
   * Returns a copy of ``self`` (same contents but can be modified separately)
+  
+* ``DeckerDeck:cardAt(int index)``
+  * Gets a ``DeckerCard`` from a ``DeckerDeck`` at particular position
+  * Arg ``index``: index of the card to get
+  * Returns a ``DeckerCard`` object
   
 ### Indexing and order
 When creating decks using ``Decker.Deck``, cards go in order of 
