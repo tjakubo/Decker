@@ -4,10 +4,10 @@ Create decks or single cards for your mod from code, maintain or update them by 
 Change any card/deck images in the script instead of re-importing all of it again.
 
 ### Features:
-* Easy organizing of card images/sheets (called "assets" here), just replace one link to update your cards/decks
-* Assets can hold single images or image sheets of any supported size (up to 10x7)
+* Easy organizing of card images/sheets (called "assets" here), just replace image links to update your cards/decks
+* Define single images or image sheets of any supported size (1x1 to 10x7)
 * Easy spawning of single cards (asset for face/back, row/column if asset is a sheet)
-* Easy spawning of decks - just provide a list of cards defines as above
+* Easy spawning of decks - just provide a list of cards defined as above
 * Deck management - rearrange, insert or remove cards from decks defined through Decker (before spawning)
 
 ### Example code
