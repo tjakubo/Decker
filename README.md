@@ -63,6 +63,10 @@ function advancedExample()
     -- negative index (anywhere in methods) means counting from the end down
     myDeck:swap(1, -1):spawn({0, 3, 0})
 end
+
+function onLoad()
+    broadcastToAll('Post any chat message to execute example code', {1, 1, 1})
+end
 ```
 
 ### Full reference
