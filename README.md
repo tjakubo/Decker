@@ -43,13 +43,16 @@ function onChat()
     
     -- spawn a single card
     cardFour:spawn({positions = {0, 3, 6}})
-    
-    -- -- -- --
-    -- ADVANCED SECTION (for those comfortable wih Lua)
+   
+    -- see below for a bit more functionality Decker offers
+    advancedExample()
+end
+
+function advancedExample()
 
     -- we can use DeckerDeck methods to modify it
-    -- let's remove cardOne's from it (index 2 and 3)
-    myDeck:remove(2, 3)
+    -- let's remove both cardOne's from it (index 2 and 3)
+    myDeck:removeMany(2, 3)
     -- now let's swap first and last card so it's {cardTwo, cardTwo, cardFour} and spawn it
     -- negative index (anywhere in methods) means counting from the end down
     myDeck:swap(1, -1):spawn({0, 3, 0})
@@ -82,6 +85,7 @@ end
   * Arg ``cardAsset``: asset created using ``Decker.Asset`` to be used fo this card
   * Args ``rowNum``, ``colNum``: integers which row/column from the asset this card is
   * Arg ``commonParams`` (optional) table of object properties, see "Common Params Table" section
+    * Method-specific field ``sideways``: bool, if the card be oriented sideways, default false
   * Returns created ``DeckerCard`` object 
   
 * ``Decker.Deck(table cards, table commonParams)``
@@ -130,8 +134,12 @@ end
   * Returns a copy of ``self`` (same contents but can be modified separately)
   
 ### Indexing and order
+When creating decks using ``Decker.Deck``, cards go in order of 
+**top-to-bottom when looking on a face-down deck (placed so a card back is visible on top of it)**.
+In ``Decker.Deck({card1, card2, card3})``, ``card1`` will be one with exposed back and ``card3`` will be one with exposed face.
 
-When creating a deck using ``Decker.Deck(cards)``, cards from the ``cards`` table are kept in order. That is, first 
+
+Stuff called "index" in Decker functions means a positive number counting from top of the deck (back-visible card is index 1), negative numbers means counting from the other end (front-visible card is index -1).
   
 ### Common Params Table
 
