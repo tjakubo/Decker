@@ -1,0 +1,263 @@
+do
+    Decker = {}
+
+    -- provide unique ID starting from 20 for present decks
+    local nextID
+    do
+        local _nextID = 20
+        nextID = function()
+            _nextID = _nextID + 1
+            return _nextID
+        end
+    end
+
+    -- Create a new CustomDeck asset
+    function Decker.Asset(face, back, options)
+        local asset = {}
+        options = options or {}
+        asset.data = {
+            FaceURL = face or error('Decker.Asset: faceImg link required'),
+            BackURL = back or error('Decker.Asset: backImg link required'),
+            NumWidth = options.width or 1,
+            NumHeight = options.height or 1,
+            BackIsHidden = options.hiddenBack or false,
+            UniqueBack = options.uniqueBack or false
+        }
+        local key = nextID()
+        asset.id = tostring(key)
+        return asset
+    end
+
+    -- Create a base for JSON objects
+    function Decker.BaseObject()
+        return {
+            Name = 'Base',
+            Transform = {
+                posX = 0, posY = 5, posZ = 0,
+                rotX = 0, rotY = 0, rotZ = 0,
+                scaleX = 1, scaleY = 1, scaleZ = 1
+            },
+            Nickname = '',
+            Description = '',
+            ColorDiffuse = { r = 1, g = 1, b = 1 },
+            Locked = false,
+            Grid = true,
+            Snap = true,
+            Autoraise = true,
+            Sticky = true,
+            Tooltip = true,
+            GridProjection = false,
+            Hands = false,
+            XmlUI = '',
+            LuaScript = '',
+            LuaScriptState = '',
+            GUID = 'deadbf'
+        }
+    end
+    -- Apply some basic parameters on base JSON object
+    function Decker.SetCommonOptions(obj, options)
+        options = options or {}
+        obj.Nickname = options.name or ''
+        obj.Description = options.desc or ''
+        obj.LuaScript = options.script or ''
+        obj.XmlUI = options.xmlui or ''
+        obj.LuaScriptState = options.scriptState or ''
+        obj.Locked = options.locked or false
+        obj.Tooltip = options.tooltip or true
+        obj.GUID = options.guid or 'deadbf'
+    end
+    -- default spawnObjectJSON params since it doesn't like blank fields
+    local function defaultParams(params, json)
+        params = params or {}
+        params.json = json
+        params.position = params.position or {0, 5, 0}
+        params.rotation = params.rotation or {0, 0, 0}
+        params.scale = params.scale or {1, 1, 1}
+        if params.sound == nil then
+            params.sound = true
+        end
+        return params
+    end
+
+    -- meta for all Decker derived objects
+    local commonMeta = {
+        -- return object JSON string, used cached if present
+        _cache = function(self)
+            if not self.json then
+                self.json = JSON.encode(self.data)
+            end
+            return self.json
+        end,
+        -- invalidate JSON string cache
+        _recache = function(self)
+            self.json = nil
+            return self
+        end,
+        spawn = function(self, params)
+            params = defaultParams(params, self:_cache())
+            return spawnObjectJSON(params)
+        end,
+    }
+    -- apply common part on a specific metatable
+    local function customMeta(mt)
+        for k,v in pairs(commonMeta) do
+            mt[k] = v
+        end
+        mt.__index = mt
+        return mt
+    end
+
+    -- DeckerCard metatable
+    local cardMeta = {}
+    cardMeta = customMeta(cardMeta)
+    -- Create a DeckerCard from an asset
+    function Decker.Card(asset, row, col, options)
+        options = options or {}
+        local card = Decker.BaseObject()
+        card.Name = 'Card'
+        -- optional custom fields
+        Decker.SetCommonOptions(card, options)
+        if options.sideways ~= nil then
+            card.SidewaysCard = options.sideways
+        end
+        -- CardID string is parent deck ID concat with its 0-based index (always two digits)
+        local num = (row-1)*asset.data.NumWidth + col - 1
+        num = string.format('%02d', num)
+        card.CardID = asset.id .. num
+        -- just the parent asset reference needed
+        card.CustomDeck = {[asset.id] = asset.data}
+
+        local obj = setmetatable({data = card}, cardMeta)
+        obj:_cache()
+        return obj
+    end
+
+    -- For copy method
+    local deepcopy
+    deepcopy = function(t)
+        local copy = {}
+        for k,v in pairs(t) do
+           if type(v) == 'table' then
+               copy[k] = deepcopy(v)
+           else
+               copy[k] = v
+           end
+        end
+        return copy
+    end
+    -- DeckerDeck meta
+    local deckMeta = {
+        count = function(self)
+            return #self.data.DeckIDs
+        end,
+        -- Transform index into positive
+        index = function(self, ind)
+            if ind < 0 then
+                return self:count() + ind + 1
+            else
+                return ind
+            end
+        end,
+        swap = function(self, i1, i2)
+            local ri1, ri2 = self:index(i1), self:index(i2)
+            assert(ri1 > 0 and ri1 <= self:count(), 'DeckObj.rearrange: index ' .. i1 .. ' out of bounds')
+            assert(ri2 > 0 and ri2 <= self:count(), 'DeckObj.rearrange: index ' .. i2 .. ' out of bounds')
+            self.data.DeckIDs[ri1], self.data.DeckIDs[ri2] = self.data.DeckIDs[ri2], self.data.DeckIDs[ri1]
+            local co = self.data.ContainedObjects
+            co[ri1], co[ri2] = co[ri2], co[ri1]
+            return self:_recache()
+        end,
+        -- rescan if any card of provided deck ID is still present, remove deck if not
+        _rescanDeckID = function(self, id)
+            for k,card in ipairs(self.data.ContainedObjects) do
+                if next(card.CustomDeck) == id then
+                    return false
+                end
+            end
+            self.data.CustomDeck[id] = nil
+            return true
+        end,
+        remove = function(self, ind)
+            local rind = self:index(ind)
+            assert(rind > 0 and rind <= self:count(), 'DeckObj.remove: index ' .. ind .. ' out of bounds')
+            local card = self.data.ContainedObjects[rind]
+            table.remove(self.data.DeckIDs, rind)
+            table.remove(self.data.ContainedObjects, rind)
+            self:_rescanDeckID(next(card.CustomDeck))
+            return self:_recache()
+        end,
+        removeMany = function(self, ...)
+            local indices = {...}
+            table.sort(indices, function(e1,e2) return self:index(e1) > self:index(e2) end)
+            for _,ind in ipairs(indices) do
+                self:remove(ind)
+            end
+            return self:_recache()
+        end,
+        insert = function(self, card, ind)
+            local rind = self:index(ind)
+            assert(rind > 0 and rind <= (self:count()+1), 'DeckObj.insert: index ' .. ind .. ' out of bounds')
+            table.insert(self.data.DeckIDs, rind, card.data.CardID)
+            table.insert(self.data.ContainedObjects, rind, card.data)
+            local id = next(card.data.CustomDeck)
+            if not self.data.CustomDeck[id] then
+                self.data.CustomDeck[id] = card.data.CustomDeck[id]
+            end
+            return self:_recache()
+        end,
+        reverse = function(self)
+            local s,e = 1, self:count()
+            while s < e do
+                self:swap(s, e)
+                s = s+1
+                e = e-1
+            end
+            return self:_recache()
+        end,
+        copy = function(self)
+            return setmetatable(deepcopy(self), getmetatable(self))
+        end,
+        cardAt = function(self, ind)
+            local rind = self:index(ind)
+            assert(rind > 0 and rind <= (self:count()+1), 'DeckObj.insert: index ' .. ind .. ' out of bounds')
+            local card = setmetatable({data = deepcopy(self.data.ContainedObjects[rind])}, cardMeta)
+            card:_cache()
+            return card
+        end
+    }
+    deckMeta = customMeta(deckMeta)
+    -- Create DeckerDeck object from DeckerCards
+    function Decker.Deck(cards, options)
+        local deck = Decker.BaseObject()
+        deck.Name = 'Deck'
+        Decker.SetCommonOptions(deck, options)
+        deck.DeckIDs = {}
+        deck.CustomDeck = {}
+        deck.ContainedObjects = {}
+        for _,card in ipairs(cards) do
+            deck.DeckIDs[#deck.DeckIDs+1] = card.data.CardID
+            local id = next(card.data.CustomDeck)
+            if not deck.CustomDeck[id] then
+                deck.CustomDeck[id] = card.data.CustomDeck[id]
+            end
+            deck.ContainedObjects[#deck.ContainedObjects+1] = card.data
+        end
+
+        local obj = setmetatable({data = deck}, deckMeta)
+        obj:_cache()
+        return obj
+    end
+    -- Create DeckerDeck from an asset using X cards on its sheet
+    function Decker.AssetDeck(asset, cardNum, options)
+        local row, col, width = 1, 1, asset.data.NumWidth
+        local cards = {}
+        for k=1,cardNum do
+            cards[#cards+1] = Decker.Card(asset, row, col)
+            col = col+1
+            if col > width then
+                row, col = row+1, 1
+            end
+        end
+        return Decker.Deck(cards, options)
+    end
+end

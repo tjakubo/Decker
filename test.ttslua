@@ -1,0 +1,47 @@
+-- Decker test scenario
+
+if dofile then
+    dofile 'Decker.ttslua'
+end
+local function dummy(...) return ... end
+if not spawnObjectJSON then
+    spawnObjectJSON = function() return {highlightOn = dummy} end
+end
+if not JSON then
+    JSON = {encode = dummy, decode = dummy}
+end
+
+local cardFaces = 'https://i.imgur.com/wiyVst7.png'
+local cardBack = 'https://i.imgur.com/KQtQGE7.png'
+
+local cardAsset = Decker.Asset(cardFaces, cardBack, {width = 2, height = 2})
+
+local cards = {
+    Decker.Card(cardAsset, 1, 1),
+    Decker.Card(cardAsset, 1, 2),
+    Decker.Card(cardAsset, 2, 1),
+    Decker.Card(cardAsset, 2, 2),
+}
+local deck1 = Decker.Deck(cards):reverse()
+local deck2 = Decker.AssetDeck(cardAsset, 3)
+
+local _x = -6
+local function nextPos()
+    local next = {_x, 3, 0}
+    _x = _x + 3
+    return {position = next}
+end
+
+function onLoad()
+    -- {1, 2, 3, 4}
+    local deckObj = deck2:copy():insert(deck1:cardAt(1), deck2:count()+1):spawn(nextPos())
+    -- {3, 2, 1}
+    deck2:swap(1, 3):spawn(nextPos())
+    -- {2, 1, 2}
+    deck1:removeMany(1, -3):remove(2):insert(deck1:cardAt(1), 2):insert(cards[1], 2):spawn(nextPos())
+    -- object validity
+    deckObj.highlightOn({0, 1, 0}, 10)
+end
+if spawnObjectJSON == dummy then
+    onLoad()
+end
