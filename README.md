@@ -39,7 +39,7 @@ local myDeck = Decker.Deck({cardFour, cardOne, cardOne, cardTwo, cardTwo})
 function onChat()
     -- spawn two of our decks (e.g. for each player), one flipped
     myDeck:spawn({position = {-4, 3, 0}})
-    myDeck:spawn({position = {4, 3, 0}, rotation = {0, 0, 0}})
+    myDeck:spawn({position = {4, 3, 0}, rotation = {0, 180, 0}})
     
     -- spawn a single card
     cardFour:spawn({position = {0, 3, 6}})
