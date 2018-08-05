@@ -87,21 +87,21 @@ end
   * Creates (but not spawns yet!) a new ``DeckerCard`` object that defines a single card
   * Arg ``cardAsset``: asset created using ``Decker.Asset`` to be used fo this card
   * Args ``rowNum``, ``colNum``: integers which row/column from the asset this card is
-  * Arg ``commonParams`` (optional) table of object properties, see "Common Params Table" section
+  * Arg ``commonParams`` (optional) table of object properties, see [Common Params Table](#common-params-table)
     * Method-specific field ``sideways``: bool, if the card be oriented sideways, default false
   * Returns created ``DeckerCard`` object 
   
 * ``Decker.Deck(table cards, table commonParams)``
   * Creates (but not spawns yet!) a new ``DeckerDeck`` object that defines a deck
-  * Arg ``cards``: table of ``DeckerCard`` this deck consists, also see [Indexing and order]
-  * Arg ``commonParams`` (optional) table of object properties, see [Common Params Table] section
+  * Arg ``cards``: table of ``DeckerCard`` this deck consists, also see [Indexing and order](#indexing-and-order)
+  * Arg ``commonParams`` (optional) table of object properties, see [Common Params Table](#common-params-table)
   * Returns created ``DeckerDeck`` object
   
-* ``Decker.AssetDeck(asset deckAsset, int cardsNum, table commonParams)
+* ``Decker.AssetDeck(asset deckAsset, int cardsNum, table commonParams)``
   * Creates (but not spawns yet!) a new ``DeckerDeck`` object that defines a deck from single asset (skipping Decker.Card)
   * Arg ``deckAsset``: an asset used for cards in this deck
   * Arg ``cardsNum``: number of cards in this deck (goes sequentially over cards in asset, row by row)
-  * Arg ``commonParams`` (optional) table of object properties, see [Common Params Table] section
+  * Arg ``commonParams`` (optional) table of object properties, see [Common Params Table](#common-params-table) section
   * Returns created ``DeckerDeck`` object
   
 #### Object methods
@@ -115,24 +115,24 @@ end
 * ``DeckerDeck:insert(DeckerCard card, int index)``
   * Inserts a ``DeckerCard`` into a ``DeckerDeck``
   * Arg ``card``: DeckerCard to be inserted in the deck
-  * Arg ``index``: index at which the card is inserted (shifting others up), also see [Indexing and order]
+  * Arg ``index``: index at which the card is inserted (shifting others up), also see [Indexing and order](#indexing-and-order)
   * Returns ``self`` for chaining methods
   
 * ``DeckerDeck:remove(int index)``
   * Removes a card from ``DeckerDeck``
-  * Arg ``index``: index at which a card is removed (shifting others down), also see [Indexing and order]
+  * Arg ``index``: index at which a card is removed (shifting others down), also see [Indexing and order](#indexing-and-order)
     * Negative index means couning from last down
   * Returns ``self`` for chaining methods
   
 * ``DeckerDeck:removeMany(int index1, int index2, ...)``
   * Removes many cards from ``DeckerDeck`` so you don't have to keep shifting down indices in mind
-  * Args ``indexN``: indices at which cards are removed (shifting others down), also see [Indexing and order]
+  * Args ``indexN``: indices at which cards are removed (shifting others down), also see [Indexing and order](#indexing-and-order)
     * No shifting between indices in the call (use deck:removeMany(1, 2, 3) to remove first 3 cards)
   * Returns ``self`` for chaining methods
   
 * ``DeckerDeck:swap(int indexOne, int indexTwo)``
   * Swaps card positions in ``DeckerDeck``
-  * Arg ``indexOne``, ``indexTwo``: indices at which cards positions are swapped with each other, [Indexing and order]
+  * Arg ``indexOne``, ``indexTwo``: indices at which cards positions are swapped with each other, [Indexing and order](#indexing-and-order)
   * Returns ``self`` for chaining methods
   
 * ``DeckerDeck:reverse()``
