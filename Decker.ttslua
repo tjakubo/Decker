@@ -250,20 +250,17 @@ do
             for k,cardID in ipairs(self.data.DeckIDs) do
                 local deckID, cardInd = cardID:sub(1, -3), cardID:sub(-2, -1)
                 if idReplace[deckID] then
-                    print('Replace deckID ' .. deckID .. ' -> ' .. idReplace[deckID] )
                     self.data.DeckIDs[k] = idReplace[deckID] .. cardInd
                 end
             end
             -- update CustomDeck data - nil replaced
             for replacedID in pairs(idReplace) do
                 if self.data.CustomDeck[replacedID] then
-                    print('Nil Custom Deck ' .. replacedID)
                     self.data.CustomDeck[replacedID] = nil
                 end
             end
             -- update CustomDeck data - add replacing
             for _,replacingID in pairs(idReplace) do
-                print('Add CustomDeck ' .. replacingID)
                 self.data.CustomDeck[replacingID] = assets[replacingID]
             end
             -- update card data
