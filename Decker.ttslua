@@ -124,7 +124,14 @@ do
     end
 
     -- DeckerCard metatable
-    local cardMeta = {}
+    local cardMeta = {
+        setAsset = function(self, asset)
+            local cardIndex = self.data.CardID:sub(-2, -1)
+            self.data.CardID = asset.id .. cardIndex
+            self.data.CustomDeck = {[asset.id] = asset.data}
+            return self:_recache()
+        end,
+    }
     cardMeta = customMeta(cardMeta)
     -- Create a DeckerCard from an asset
     function Decker.Card(asset, row, col, options)

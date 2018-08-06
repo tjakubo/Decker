@@ -10,6 +10,8 @@ end
 if not JSON then
     JSON = {encode = dummy, decode = dummy}
 end
+local _JSON = JSON
+JSON = {encode = _JSON.encode_pretty, encode_pretty = _JSON.encode_pretty, decode = _JSON.decode}
 
 local cardFaces = 'https://i.imgur.com/wiyVst7.png'
 local cardBack = 'https://i.imgur.com/KQtQGE7.png'
@@ -31,10 +33,10 @@ local deck1 = Decker.Deck(cards1):reverse()
 local deck2 = Decker.AssetDeck(cardAsset1, 3)
 local deck4 = Decker.Deck({cards1[1], cards2[1], cards2[2]})
 
-local _x = -6
+local _x = -12
 local function nextPos()
     local next = {_x, 3, 0}
-    _x = _x + 3
+    _x = _x + 4
     return {position = next}
 end
 
@@ -49,6 +51,8 @@ function onLoad()
     deckObj.highlightOn({0, 1, 0}, 10)
     -- {1, card, back}
     deck4:spawn(nextPos())
+    -- back
+    cards1[3]:copy():setAsset(cardAsset2):spawn(nextPos())
     -- 3
     cards1[3]:spawn(nextPos())
 end
