@@ -113,6 +113,10 @@ do
         copy = function(self)
             return setmetatable(deepcopy(self), getmetatable(self))
         end,
+        setCommon = function(self, options)
+            Decker.SetCommonOptions(self.data, options)
+            return self
+        end,
     }
     -- apply common part on a specific metatable
     local function customMeta(mt)

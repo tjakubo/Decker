@@ -52,7 +52,7 @@ function onLoad()
     -- {1, card, back}
     deck4:spawn(nextPos())
     -- back
-    cards1[3]:copy():setAsset(cardAsset2):spawn(nextPos())
+    cards1[3]:copy():setAsset(cardAsset2):setCommon({ name = 'back', desc = 'back desc' }):spawn(nextPos())
     -- 3
     cards1[3]:spawn(nextPos())
 end
