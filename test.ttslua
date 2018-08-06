@@ -14,16 +14,22 @@ end
 local cardFaces = 'https://i.imgur.com/wiyVst7.png'
 local cardBack = 'https://i.imgur.com/KQtQGE7.png'
 
-local cardAsset = Decker.Asset(cardFaces, cardBack, {width = 2, height = 2})
+local cardAsset1 = Decker.Asset(cardFaces, cardBack, {width = 2, height = 2})
+local cardAsset2 = Decker.Asset(cardBack, cardFaces, {width = 1, height = 2})
 
-local cards = {
-    Decker.Card(cardAsset, 1, 1),
-    Decker.Card(cardAsset, 1, 2),
-    Decker.Card(cardAsset, 2, 1),
-    Decker.Card(cardAsset, 2, 2),
+local cards1 = {
+    Decker.Card(cardAsset1, 1, 1),
+    Decker.Card(cardAsset1, 1, 2),
+    Decker.Card(cardAsset1, 2, 1),
+    Decker.Card(cardAsset1, 2, 2),
 }
-local deck1 = Decker.Deck(cards):reverse()
-local deck2 = Decker.AssetDeck(cardAsset, 3)
+local cards2 = {
+    Decker.Card(cardAsset2, 1, 1),
+    Decker.Card(cardAsset2, 2, 1),
+}
+local deck1 = Decker.Deck(cards1):reverse()
+local deck2 = Decker.AssetDeck(cardAsset1, 3)
+local deck4 = Decker.Deck({cards1[1], cards2[1], cards2[2]})
 
 local _x = -6
 local function nextPos()
@@ -38,9 +44,11 @@ function onLoad()
     -- {3, 2, 1}
     deck2:swap(1, 3):spawn(nextPos())
     -- {2, 1, 2}
-    deck1:removeMany(1, -3):remove(2):insert(deck1:cardAt(1), 2):insert(cards[1], 2):spawn(nextPos())
+    deck1:removeMany(1, -3):remove(2):insert(deck1:cardAt(1), 2):insert(cards1[1], 2):spawn(nextPos())
     -- object validity
     deckObj.highlightOn({0, 1, 0}, 10)
+    -- {1, card, back}
+    deck4:spawn(nextPos())
 end
 if spawnObjectJSON == dummy then
     onLoad()

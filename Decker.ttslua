@@ -79,6 +79,19 @@ do
         return params
     end
 
+    -- For copy method
+    local deepcopy
+    deepcopy = function(t)
+        local copy = {}
+        for k,v in pairs(t) do
+           if type(v) == 'table' then
+               copy[k] = deepcopy(v)
+           else
+               copy[k] = v
+           end
+        end
+        return copy
+    end
     -- meta for all Decker derived objects
     local commonMeta = {
         -- return object JSON string, used cached if present
@@ -96,6 +109,9 @@ do
         spawn = function(self, params)
             params = defaultParams(params, self:_cache())
             return spawnObjectJSON(params)
+        end,
+        copy = function(self)
+            return setmetatable(deepcopy(self), getmetatable(self))
         end,
     }
     -- apply common part on a specific metatable
@@ -132,19 +148,7 @@ do
         return obj
     end
 
-    -- For copy method
-    local deepcopy
-    deepcopy = function(t)
-        local copy = {}
-        for k,v in pairs(t) do
-           if type(v) == 'table' then
-               copy[k] = deepcopy(v)
-           else
-               copy[k] = v
-           end
-        end
-        return copy
-    end
+
     -- DeckerDeck meta
     local deckMeta = {
         count = function(self)
@@ -213,9 +217,6 @@ do
                 e = e-1
             end
             return self:_recache()
-        end,
-        copy = function(self)
-            return setmetatable(deepcopy(self), getmetatable(self))
         end,
         cardAt = function(self, ind)
             local rind = self:index(ind)
