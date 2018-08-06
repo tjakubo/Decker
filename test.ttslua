@@ -33,30 +33,59 @@ local deck1 = Decker.Deck(cards1):reverse()
 local deck2 = Decker.AssetDeck(cardAsset1, 3)
 local deck4 = Decker.Deck({cards1[1], cards2[1], cards2[2]})
 
-local _x = -12
+local _x = -15
 local function nextPos()
     local next = {_x, 3, 0}
-    _x = _x + 4
+    _x = _x + 5
     return {position = next}
 end
 
+local function expectOrder(order, obj)
+    local desc = table.concat(order, '\n')
+    local tPos = obj.getPosition()
+    tPos.z = tPos.z + 3 + #order*0.75
+    tPos.y = 1
+    local text = spawnObject({
+        type = '3DText',
+        position = tPos,
+        rotation = {90, 0, 0},
+    })
+    text.setValue(desc)
+    text.TextTool.setFontSize(50)
+    return obj
+end
+
 function onLoad()
-    -- {1, 2, 3, 4}
-    local deckObj = deck2:copy():insert(deck1:cardAt(1), deck2:count()+1):spawn(nextPos())
-    -- {3, 2, 1}
-    deck2:swap(1, 3):spawn(nextPos())
-    -- {2, 1, 2}
-    deck1:removeMany(1, -3):remove(2):insert(deck1:cardAt(1), 2):insert(cards1[1], 2):spawn(nextPos())
-    -- object validity
-    deckObj.highlightOn({0, 1, 0}, 10)
-    -- {1, card, back}
-    deck4:spawn(nextPos())
-    -- back
-    cards1[3]:copy():setAsset(cardAsset2):setCommon({ name = 'back', desc = 'back desc' }):spawn(nextPos())
-    -- 3
-    cards1[3]:spawn(nextPos())
-    -- {card, one, two}
-    deck4:copy():switchAssets({[cardAsset1] = cardAsset2, [cardAsset2] = cardAsset1}):spawn(nextPos())
+    expectOrder( {'HIGHLIGHTED', 1, 2, 3, 4},
+    deck2:copy():insert(deck1:cardAt(1), deck2:count()+1):spawn(nextPos()) ).highlightOn({0, 1, 0}, 10)
+
+    expectOrder( {3, 2, 1},
+    deck2:swap(1, 3):spawn(nextPos()) )
+
+    expectOrder( {2, 1, 2},
+    deck1:removeMany(1, -3):remove(2):insert(deck1:cardAt(1), 2):insert(cards1[1], 2):spawn(nextPos()) )
+
+    expectOrder( {1, 'card', 'back'},
+    deck4:spawn(nextPos()) )
+
+    expectOrder( {'back'},
+    cards1[3]:copy():setAsset(cardAsset2):setCommon({ name = 'back', desc = 'back desc' }):spawn(nextPos()) )
+
+    expectOrder( {3},
+    cards1[3]:spawn(nextPos()) )
+
+    expectOrder( {'card', 1, 2},
+    deck4:copy():switchAssets({[cardAsset1] = cardAsset2, [cardAsset2] = cardAsset1}):spawn(nextPos()) )
+
+    Wait.time(rotateAll, 1)
+end
+function rotateAll()
+    for _,obj in ipairs(getAllObjects()) do
+        if obj.tag == 'Deck' or obj.tag == 'Card' then
+            local rot = obj.getRotation()
+            obj.setRotation({rot[1], rot[2]+180, rot[3]})
+        end
+    end
 end
 if spawnObjectJSON == dummy then
     onLoad()
