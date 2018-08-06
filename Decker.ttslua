@@ -235,6 +235,46 @@ do
             local card = setmetatable({data = deepcopy(self.data.ContainedObjects[rind])}, cardMeta)
             card:_cache()
             return card
+        end,
+        switchAssets = function(self, replaceTable)
+            -- destructure replace table into
+            -- [ID_to_replace] -> [ID_to_replace_with]
+            -- [new_asset_ID] -> [new_asset_data]
+            local idReplace = {}
+            local assets = {}
+            for oldAsset, newAsset in pairs(replaceTable) do
+                assets[newAsset.id] = newAsset.data
+                idReplace[oldAsset.id] = newAsset.id
+            end
+            -- update deckIDs
+            for k,cardID in ipairs(self.data.DeckIDs) do
+                local deckID, cardInd = cardID:sub(1, -3), cardID:sub(-2, -1)
+                if idReplace[deckID] then
+                    print('Replace deckID ' .. deckID .. ' -> ' .. idReplace[deckID] )
+                    self.data.DeckIDs[k] = idReplace[deckID] .. cardInd
+                end
+            end
+            -- update CustomDeck data - nil replaced
+            for replacedID in pairs(idReplace) do
+                if self.data.CustomDeck[replacedID] then
+                    print('Nil Custom Deck ' .. replacedID)
+                    self.data.CustomDeck[replacedID] = nil
+                end
+            end
+            -- update CustomDeck data - add replacing
+            for _,replacingID in pairs(idReplace) do
+                print('Add CustomDeck ' .. replacingID)
+                self.data.CustomDeck[replacingID] = assets[replacingID]
+            end
+            -- update card data
+            for k,cardData in ipairs(self.data.ContainedObjects) do
+                local deckID = next(cardData.CustomDeck)
+                if idReplace[deckID] then
+                    cardData.CustomDeck[deckID] = nil
+                    cardData.CustomDeck[idReplace[deckID]] = assets[idReplace[deckID]]
+                end
+            end
+            return self:_recache()
         end
     }
     deckMeta = customMeta(deckMeta)

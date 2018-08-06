@@ -55,6 +55,8 @@ function onLoad()
     cards1[3]:copy():setAsset(cardAsset2):setCommon({ name = 'back', desc = 'back desc' }):spawn(nextPos())
     -- 3
     cards1[3]:spawn(nextPos())
+    -- {card, one, two}
+    deck4:copy():switchAssets({[cardAsset1] = cardAsset2, [cardAsset2] = cardAsset1}):spawn(nextPos())
 end
 if spawnObjectJSON == dummy then
     onLoad()
