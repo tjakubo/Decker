@@ -34,6 +34,13 @@ do
         return key
     end
     
+    local assetMeta = {
+        deck = function(self, cardNum, options)
+            return Decker.AssetDeck(self, cardNum, options)
+        end
+    }
+    assetMeta = {__index = assetMeta}
+    
     -- Create a new CustomDeck asset
     function Decker.Asset(face, back, options)
         local asset = {}
@@ -48,11 +55,11 @@ do
         }
         -- Reuse ID if asset existing
         asset.id = assetID(asset.data)
-        return asset
+        return setmetatable(asset, assetMeta)
     end
     
     function Decker.AssetFromData(assetData)
-        return { data = assetData, id = assetID(assetData) }     
+        return setmetatable({data = assetData, id = assetID(assetData)}, assetMeta)     
     end
 
     -- Create a base for JSON objects
@@ -336,6 +343,7 @@ do
     end
     -- Create DeckerDeck from an asset using X cards on its sheet
     function Decker.AssetDeck(asset, cardNum, options)
+        cardNum = cardNum or asset.data.NumWidth * asset.data.NumHeight
         local row, col, width = 1, 1, asset.data.NumWidth
         local cards = {}
         for k=1,cardNum do

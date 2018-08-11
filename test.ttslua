@@ -36,7 +36,7 @@ local cards2 = {
     Decker.Card(cardAsset2, 2, 1),
 }
 local deck1 = Decker.Deck(cards1):reverse()
-local deck2 = Decker.AssetDeck(cardAsset1, 3)
+local deck2 = cardAsset1:deck(3)
 local deck4 = Decker.Deck({cards1[1], cards2[1], cards2[2]})
 assert(deck1:getAssets()[1].id == cardAsset1.id, 'deck:getAssets generated a new ID')
 assert(#deck4:getAssets() == 2, 'deck:getAssets returned wrong number of assets')
