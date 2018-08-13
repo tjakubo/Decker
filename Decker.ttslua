@@ -172,6 +172,18 @@ do
         getAsset = function(self)
             local deckID = next(self.data.CustomDeck)
             return Decker.AssetFromData(self.data.CustomDeck[deckID])
+        end,
+        -- reset deck ID to a consistent value script-wise
+        _recheckDeckID = function(self)
+            local oldID = next(self.data.CustomDeck)
+            local correctID = assetID(self.data.CustomDeck[oldID])
+            if oldID ~= correctID then
+                local cardIndex = self.data.CardID:sub(-2, -1)
+                self.data.CardID = correctID .. cardIndex
+                self.data.CustomDeck[correctID] = self.data.CustomDeck[oldID]
+                self.data.CustomDeck[oldID] = nil
+            end
+            return self
         end
     }
     cardMeta = customMeta(cardMeta)
