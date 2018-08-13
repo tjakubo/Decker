@@ -220,31 +220,46 @@ do
             co[ri1], co[ri2] = co[ri2], co[ri1]
             return self:_recache()
         end,
-        -- rescan if any card of provided deck ID is still present, remove deck if not
-        _rescanDeckID = function(self, id)
+        -- rebuild self.data.CustomDeck based on contained cards
+        _rescanDeckIDs = function(self, id)
+            local cardIDs = {}
             for k,card in ipairs(self.data.ContainedObjects) do
-                if next(card.CustomDeck) == id then
-                    return false
+                local cardID = next(card.CustomDeck)
+                if not cardIDs[cardID] then
+                    cardIDs[cardID] = card.CustomDeck[cardID]
                 end
             end
-            self.data.CustomDeck[id] = nil
-            return true
+            --[[
+            for id,data in pairs(cardIDs) do
+                self.data.CustomDeck[id] = data
+            end
+            for id,data in pairs(self.data.CustomDeck) do
+                if not cardIDs[id] then
+                    self.data.CustomDeck[id] = nil
+                end
+            end
+            ]]--
+            -- eeh, GC gotta earn its keep as well
+            self.data.CustomDeck = cardIDs
         end,
-        remove = function(self, ind)
+        remove = function(self, ind, skipRescan)
             local rind = self:index(ind)
             assert(rind > 0 and rind <= self:count(), 'DeckObj.remove: index ' .. ind .. ' out of bounds')
             local card = self.data.ContainedObjects[rind]
             table.remove(self.data.DeckIDs, rind)
             table.remove(self.data.ContainedObjects, rind)
-            self:_rescanDeckID(next(card.CustomDeck))
+            if not skipRescan then
+                self:_rescanDeckIDs(next(card.CustomDeck))
+            end
             return self:_recache()
         end,
         removeMany = function(self, ...)
             local indices = {...}
             table.sort(indices, function(e1,e2) return self:index(e1) > self:index(e2) end)
             for _,ind in ipairs(indices) do
-                self:remove(ind)
+                self:remove(ind, true)
             end
+            self:_rescanDeckIDs()
             return self:_recache()
         end,
         insert = function(self, card, ind)
