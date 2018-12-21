@@ -134,6 +134,9 @@ Decker does not do extensive assertions on passed arguments and will probably ca
   * (this is built in TTS behavior, internally a continuous index is kept, not row/column number)
   * Returns ``self`` for chaining methods
 
+* ``DeckerCard:getAsset()``
+  * Returns an ``asset`` associated with this card
+
 * ``DeckerDeck:insert(DeckerCard card, int index)``
   * Inserts a ``DeckerCard`` into a ``DeckerDeck``
   * Arg ``card``: DeckerCard to be inserted in the deck

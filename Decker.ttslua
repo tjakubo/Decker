@@ -7,9 +7,39 @@ do
         local _nextID = 20
         nextID = function()
             _nextID = _nextID + 1
-            return _nextID
+            return tostring(_nextID)
         end
     end
+
+    -- Asset signature (equality comparison)
+    local function assetSignature(assetData)
+        return table.concat({
+            assetData.FaceURL,
+            assetData.BackURL,
+            assetData.NumWidth,
+            assetData.NumHeight,
+            assetData.BackIsHidden and 'hb' or '',
+            assetData.UniqueBack and 'ub' or ''
+        })
+    end
+    -- Asset ID storage to avoid new ones for identical assets
+    local idLookup = {}
+    local function assetID(assetData)
+        local sig = assetSignature(assetData)
+        local key = idLookup[sig]
+        if not key then
+            key = nextID()
+            idLookup[sig] = key
+        end
+        return key
+    end
+
+    local assetMeta = {
+        deck = function(self, cardNum, options)
+            return Decker.AssetDeck(self, cardNum, options)
+        end
+    }
+    assetMeta = {__index = assetMeta}
 
     -- Create a new CustomDeck asset
     function Decker.Asset(face, back, options)
@@ -23,9 +53,13 @@ do
             BackIsHidden = options.hiddenBack or false,
             UniqueBack = options.uniqueBack or false
         }
-        local key = nextID()
-        asset.id = tostring(key)
-        return asset
+        -- Reuse ID if asset existing
+        asset.id = assetID(asset.data)
+        return setmetatable(asset, assetMeta)
+    end
+    -- Pull a Decker.Asset from card JSONs CustomDeck entry
+    local function assetFromData(assetData)
+        return setmetatable({data = assetData, id = assetID(assetData)}, assetMeta)
     end
 
     -- Create a base for JSON objects
@@ -152,6 +186,22 @@ do
             self.data.CustomDeck = {[asset.id] = asset.data}
             return self:_recache()
         end,
+        getAsset = function(self)
+            local deckID = next(self.data.CustomDeck)
+            return assetFromData(self.data.CustomDeck[deckID])
+        end,
+        -- reset deck ID to a consistent value script-wise
+        _recheckDeckID = function(self)
+            local oldID = next(self.data.CustomDeck)
+            local correctID = assetID(self.data.CustomDeck[oldID])
+            if oldID ~= correctID then
+                local cardIndex = self.data.CardID:sub(-2, -1)
+                self.data.CardID = correctID .. cardIndex
+                self.data.CustomDeck[correctID] = self.data.CustomDeck[oldID]
+                self.data.CustomDeck[oldID] = nil
+            end
+            return self
+        end
     }
     cardMeta = customMeta(cardMeta)
     -- Create a DeckerCard from an asset
@@ -202,32 +252,37 @@ do
             co[ri1], co[ri2] = co[ri2], co[ri1]
             return self:_recache()
         end,
-        -- rescan if any card of provided deck ID is still present, remove deck if not
-        _rescanDeckID = function(self, id)
+        -- rebuild self.data.CustomDeck based on contained cards
+        _rescanDeckIDs = function(self, id)
+            local cardIDs = {}
             for k,card in ipairs(self.data.ContainedObjects) do
-                if next(card.CustomDeck) == id then
-                    return false
+                local cardID = next(card.CustomDeck)
+                if not cardIDs[cardID] then
+                    cardIDs[cardID] = card.CustomDeck[cardID]
                 end
             end
-            self.data.CustomDeck[id] = nil
-            return true
+            -- eeh, GC gotta earn its keep as well
+            -- FIXME if someone does shitton of removals, may cause performance issues?
+            self.data.CustomDeck = cardIDs
         end,
-        remove = function(self, ind)
-            ind = ind or self:count()
+        remove = function(self, ind, skipRescan)
             local rind = self:index(ind)
             assert(rind > 0 and rind <= self:count(), 'DeckObj.remove: index ' .. ind .. ' out of bounds')
             local card = self.data.ContainedObjects[rind]
             table.remove(self.data.DeckIDs, rind)
             table.remove(self.data.ContainedObjects, rind)
-            self:_rescanDeckID(next(card.CustomDeck))
+            if not skipRescan then
+                self:_rescanDeckIDs(next(card.CustomDeck))
+            end
             return self:_recache()
         end,
         removeMany = function(self, ...)
             local indices = {...}
             table.sort(indices, function(e1,e2) return self:index(e1) > self:index(e2) end)
             for _,ind in ipairs(indices) do
-                self:remove(ind)
+                self:remove(ind, true)
             end
+            self:_rescanDeckIDs()
             return self:_recache()
         end,
         insert = function(self, card, ind)
@@ -294,6 +349,13 @@ do
                 end
             end
             return self:_recache()
+        end,
+        getAssets = function(self)
+            local assets = {}
+            for id,assetData in pairs(self.data.CustomDeck) do
+                assets[#assets+1] = Decker.AssetFromData(assetData)
+            end
+            return assets
         end
     }
     deckMeta = customMeta(deckMeta)
