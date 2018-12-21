@@ -20,7 +20,7 @@ local cardAsset1 = Decker.Asset(cardFaces, cardBack, {width = 2, height = 2})
 local cardAsset2 = Decker.Asset(cardBack, cardFaces, {width = 1, height = 2})
 
 local duplicateAsset = Decker.Asset(cardFaces, cardBack, {width = 2, height = 2})
-local anotherDuplicate = Decker.AssetFromData(duplicateAsset.data)
+local anotherDuplicate = Decker.Card(duplicateAsset):getAsset()
 assert(cardAsset1.id == duplicateAsset.id and duplicateAsset.id == anotherDuplicate.id,
        'identical assets with different IDs')
 

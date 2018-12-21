@@ -164,6 +164,9 @@ Decker does not do extensive assertions on passed arguments and will probably ca
   * Reverses a ``DeckerDeck`` card order (basically swapping cards end-to-end)
   * Returns ``self`` for chaining methods
 
+* ``DeckerDeck:getAssets()``
+  * Returns a table of all ``asset``s on cards in this deck
+
 * ``DeckerDeck:switchAssets(table assetMap)``
   * Replaces each asset provided as a key with asset provided as value under this key
   * Arg ``assetMap``: table keyed with assets-to-be-replaced with values being assets-to-replace

@@ -1,6 +1,6 @@
 do
     Decker = {}
-    
+
     -- provide unique ID starting from 20 for present decks
     local nextID
     do
@@ -10,11 +10,7 @@ do
             return tostring(_nextID)
         end
     end
-<<<<<<< HEAD
 
-=======
-    
->>>>>>> refs/remotes/origin/master
     -- Asset signature (equality comparison)
     local function assetSignature(assetData)
         return table.concat({
@@ -37,22 +33,14 @@ do
         end
         return key
     end
-<<<<<<< HEAD
 
-=======
-    
->>>>>>> refs/remotes/origin/master
     local assetMeta = {
         deck = function(self, cardNum, options)
             return Decker.AssetDeck(self, cardNum, options)
         end
     }
     assetMeta = {__index = assetMeta}
-<<<<<<< HEAD
 
-=======
-    
->>>>>>> refs/remotes/origin/master
     -- Create a new CustomDeck asset
     function Decker.Asset(face, back, options)
         local asset = {}
@@ -69,15 +57,9 @@ do
         asset.id = assetID(asset.data)
         return setmetatable(asset, assetMeta)
     end
-<<<<<<< HEAD
     -- Pull a Decker.Asset from card JSONs CustomDeck entry
     local function assetFromData(assetData)
         return setmetatable({data = assetData, id = assetID(assetData)}, assetMeta)
-=======
-    
-    function Decker.AssetFromData(assetData)
-        return setmetatable({data = assetData, id = assetID(assetData)}, assetMeta)     
->>>>>>> refs/remotes/origin/master
     end
 
     -- Create a base for JSON objects
@@ -206,11 +188,7 @@ do
         end,
         getAsset = function(self)
             local deckID = next(self.data.CustomDeck)
-<<<<<<< HEAD
             return assetFromData(self.data.CustomDeck[deckID])
-=======
-            return Decker.AssetFromData(self.data.CustomDeck[deckID])
->>>>>>> refs/remotes/origin/master
         end,
         -- reset deck ID to a consistent value script-wise
         _recheckDeckID = function(self)
@@ -281,26 +259,10 @@ do
                 local cardID = next(card.CustomDeck)
                 if not cardIDs[cardID] then
                     cardIDs[cardID] = card.CustomDeck[cardID]
-<<<<<<< HEAD
                 end
             end
             -- eeh, GC gotta earn its keep as well
             -- FIXME if someone does shitton of removals, may cause performance issues?
-=======
-                end
-            end
-            --[[
-            for id,data in pairs(cardIDs) do
-                self.data.CustomDeck[id] = data
-            end
-            for id,data in pairs(self.data.CustomDeck) do
-                if not cardIDs[id] then
-                    self.data.CustomDeck[id] = nil
-                end
-            end
-            ]]--
-            -- eeh, GC gotta earn its keep as well
->>>>>>> refs/remotes/origin/master
             self.data.CustomDeck = cardIDs
         end,
         remove = function(self, ind, skipRescan)
@@ -391,7 +353,7 @@ do
         getAssets = function(self)
             local assets = {}
             for id,assetData in pairs(self.data.CustomDeck) do
-                assets[#assets+1] = Decker.AssetFromData(assetData)
+                assets[#assets+1] = assetFromData(assetData)
             end
             return assets
         end
