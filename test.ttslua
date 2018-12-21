@@ -8,7 +8,7 @@ if not spawnObjectJSON then
     spawnObjectJSON = function() return {highlightOn = dummy} end
 end
 if not JSON then
-    JSON = {encode = dummy, decode = dummy}
+    JSON = {encode_pretty = dummy, decode = dummy}
 end
 local _JSON = JSON
 JSON = {encode = _JSON.encode_pretty, encode_pretty = _JSON.encode_pretty, decode = _JSON.decode}
@@ -19,19 +19,27 @@ local cardBack = 'https://i.imgur.com/KQtQGE7.png'
 local cardAsset1 = Decker.Asset(cardFaces, cardBack, {width = 2, height = 2})
 local cardAsset2 = Decker.Asset(cardBack, cardFaces, {width = 1, height = 2})
 
+local duplicateAsset = Decker.Asset(cardFaces, cardBack, {width = 2, height = 2})
+local anotherDuplicate = Decker.AssetFromData(duplicateAsset.data)
+assert(cardAsset1.id == duplicateAsset.id and duplicateAsset.id == anotherDuplicate.id,
+       'identical assets with different IDs')
+
 local cards1 = {
     Decker.Card(cardAsset1, 1, 1),
     Decker.Card(cardAsset1, 1, 2),
     Decker.Card(cardAsset1, 2, 1, {name = 'card three', Autoraise = false}),
     Decker.Card(cardAsset1, 2, 2),
 }
+assert(cards1[3]:getAsset().id == cardAsset1.id, 'card:getAsset returns a new ID')
 local cards2 = {
     Decker.Card(cardAsset2, 1, 1),
     Decker.Card(cardAsset2, 2, 1),
 }
 local deck1 = Decker.Deck(cards1):reverse()
-local deck2 = Decker.AssetDeck(cardAsset1, 3)
+local deck2 = cardAsset1:deck(3)
 local deck4 = Decker.Deck({cards1[1], cards2[1], cards2[2]})
+assert(deck1:getAssets()[1].id == cardAsset1.id, 'deck:getAssets generated a new ID')
+assert(#deck4:getAssets() == 2, 'deck:getAssets returned wrong number of assets')
 
 local _x = -15
 local function nextPos()
