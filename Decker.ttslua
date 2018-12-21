@@ -156,6 +156,7 @@ do
     cardMeta = customMeta(cardMeta)
     -- Create a DeckerCard from an asset
     function Decker.Card(asset, row, col, options)
+        row, col = row or 1, col or 1
         options = options or {}
         local card = Decker.BaseObject()
         card.Name = 'Card'
@@ -212,6 +213,7 @@ do
             return true
         end,
         remove = function(self, ind)
+            ind = ind or self:count()
             local rind = self:index(ind)
             assert(rind > 0 and rind <= self:count(), 'DeckObj.remove: index ' .. ind .. ' out of bounds')
             local card = self.data.ContainedObjects[rind]
@@ -229,6 +231,7 @@ do
             return self:_recache()
         end,
         insert = function(self, card, ind)
+            ind = ind or (self:count() + 1)
             local rind = self:index(ind)
             assert(rind > 0 and rind <= (self:count()+1), 'DeckObj.insert: index ' .. ind .. ' out of bounds')
             table.insert(self.data.DeckIDs, rind, card.data.CardID)
@@ -296,6 +299,7 @@ do
     deckMeta = customMeta(deckMeta)
     -- Create DeckerDeck object from DeckerCards
     function Decker.Deck(cards, options)
+        assert(#cards > 1, 'Trying to create a Decker.deck with less than 2 cards')
         local deck = Decker.BaseObject()
         deck.Name = 'Deck'
         Decker.SetCommonOptions(deck, options)
@@ -317,6 +321,7 @@ do
     end
     -- Create DeckerDeck from an asset using X cards on its sheet
     function Decker.AssetDeck(asset, cardNum, options)
+        cardNum = cardNum or asset.data.NumWidth * asset.data.NumHeight
         local row, col, width = 1, 1, asset.data.NumWidth
         local cards = {}
         for k=1,cardNum do
