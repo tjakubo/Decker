@@ -77,6 +77,9 @@ function onLoad()
     expectOrder( {'card', 1, 2},
     deck4:copy():switchAssets({[cardAsset1] = cardAsset2, [cardAsset2] = cardAsset1}):spawn(nextPos()) )
 
+    expectOrder( {'sideways\nthree' },
+    Decker.Card(cardAsset1, 2, 1, {name = 'card three', sideways = true}):spawn(nextPos()) )
+
     Wait.time(rotateAll, 1)
 end
 function rotateAll()
