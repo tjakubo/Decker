@@ -54,17 +54,34 @@ do
             GUID = 'deadbf'
         }
     end
+    -- Typical paramters map with defaults
+    local commonMap = {
+        name   = {field = 'Nickname',    default = ''},
+        desc   = {field = 'Description', default = ''},
+        script = {field = 'LuaScript',   default = ''},
+        xmlui  = {field = 'XmlUI',       default = ''},
+        scriptState = {field = 'LuaScriptState', default = ''},
+        locked  = {field = 'Locked',  default = false},
+        tooltip = {field = 'Tooltip', default = true},
+        guid    = {field = 'GUID',    default = 'deadbf'},
+    }
     -- Apply some basic parameters on base JSON object
     function Decker.SetCommonOptions(obj, options)
         options = options or {}
-        obj.Nickname = options.name or ''
-        obj.Description = options.desc or ''
-        obj.LuaScript = options.script or ''
-        obj.XmlUI = options.xmlui or ''
-        obj.LuaScriptState = options.scriptState or ''
-        obj.Locked = options.locked or false
-        obj.Tooltip = options.tooltip or true
-        obj.GUID = options.guid or 'deadbf'
+        for k,v in pairs(commonMap) do
+            -- can't use and/or logic cause of boolean fields
+            if options[k] ~= nil then
+                obj[v.field] = options[k]
+            else
+                obj[v.field] = v.default
+            end
+        end
+        -- passthrough unrecognized keys
+        for k,v in pairs(options) do
+            if not commonMap[k] then
+                obj[k] = v
+            end
+        end
     end
     -- default spawnObjectJSON params since it doesn't like blank fields
     local function defaultParams(params, json)
@@ -146,6 +163,8 @@ do
         Decker.SetCommonOptions(card, options)
         if options.sideways ~= nil then
             card.SidewaysCard = options.sideways
+            -- FIXME passthrough set that field, find some more elegant solution
+            card.sideways = nil
         end
         -- CardID string is parent deck ID concat with its 0-based index (always two digits)
         local num = (row-1)*asset.data.NumWidth + col - 1
