@@ -205,4 +205,5 @@ Setting any key outside of the range listed below (plus ``sideways`` for ``Decke
 * ``tooltip``: bool, if the tooltip on object is shown, default true
 * ``scriptState``: string, saved state of the script, default empty
 * ``guid``: string, GUID this object will *try* to have, default 'deadbf'
+* ``hands``: bool, if the object should go into player hands, default true for cards, default false for decks
 Keep in mind ``guid`` field will be ignored (TTS does this, not me) if it's invalid or if an object of this GUID already exists.
