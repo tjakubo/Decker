@@ -81,7 +81,7 @@ do
             Sticky = true,
             Tooltip = true,
             GridProjection = false,
-            Hands = false,
+            Hands = true,
             XmlUI = '',
             LuaScript = '',
             LuaScriptState = '',
@@ -98,6 +98,7 @@ do
         locked  = {field = 'Locked',  default = false},
         tooltip = {field = 'Tooltip', default = true},
         guid    = {field = 'GUID',    default = 'deadbf'},
+        hands   = {field = 'Hands',   default = true},
     }
     -- Apply some basic parameters on base JSON object
     function Decker.SetCommonOptions(obj, options)
@@ -363,6 +364,7 @@ do
     function Decker.Deck(cards, options)
         assert(#cards > 1, 'Trying to create a Decker.deck with less than 2 cards')
         local deck = Decker.BaseObject()
+        deck.Hands = false
         deck.Name = 'Deck'
         Decker.SetCommonOptions(deck, options)
         deck.DeckIDs = {}
