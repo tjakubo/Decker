@@ -117,10 +117,9 @@ do
             end
         end
     end
-    -- default spawnObjectJSON params since it doesn't like blank fields
-    local function defaultParams(params, json)
+    -- default spawnObjectJSON/spawnObjectData params since it doesn't like blank fields
+    local function defaultParams(params)
         params = params or {}
-        params.json = json
         params.position = params.position or {0, 5, 0}
         params.rotation = params.rotation or {0, 0, 0}
         params.scale = params.scale or {1, 1, 1}
@@ -158,7 +157,13 @@ do
             return self
         end,
         spawn = function(self, params)
-            params = defaultParams(params, self:_cache())
+            params = defaultParams(params)
+            params.data = self.data
+            return spawnObjectData(params)
+        end,
+        spawnJSON = function(self, params)
+            params = defaultParams(params)
+            params.json = self:_cache()
             return spawnObjectJSON(params)
         end,
         copy = function(self)
@@ -225,7 +230,7 @@ do
         card.CustomDeck = {[asset.id] = asset.data}
 
         local obj = setmetatable({data = card}, cardMeta)
-        obj:_cache()
+        obj:_recache()
         return obj
     end
 
@@ -310,7 +315,7 @@ do
             local rind = self:index(ind)
             assert(rind > 0 and rind <= (self:count()+1), 'DeckObj.insert: index ' .. ind .. ' out of bounds')
             local card = setmetatable({data = deepcopy(self.data.ContainedObjects[rind])}, cardMeta)
-            card:_cache()
+            card:_recache()
             return card
         end,
         switchAssets = function(self, replaceTable)
@@ -378,7 +383,7 @@ do
         end
 
         local obj = setmetatable({data = deck}, deckMeta)
-        obj:_cache()
+        obj:_recache()
         return obj
     end
     -- Create DeckerDeck from an asset using X cards on its sheet

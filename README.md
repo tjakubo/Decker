@@ -118,7 +118,7 @@ Decker does not do extensive assertions on passed arguments and will probably ca
 
 * ``DeckerCard:spawn(table spawnParams) and DeckerDeck:spawn(table spawnParams)``
   * Spawns the object on the table, you can still modify/spawn it more afterwards
-  * Arg ``spawnParams``: table of ``parameters`` for [spawnObjectJSON](https://api.tabletopsimulator.com/base/#spawnobjectjson)
+  * Arg ``spawnParams``: table of ``parameters`` for [spawnObjectJSON](https://api.tabletopsimulator.com/base/#spawnobjectjson) or [spawnObjectData](https://api.tabletopsimulator.com/base/#spawnobjectdata)
   * Returns a TTS [object](https://api.tabletopsimulator.com/object/) of the spawned card
   * Keep in mind objects may not be immediately ready, see [object.spawning](https://api.tabletopsimulator.com/object/#member-variables)
 
