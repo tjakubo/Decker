@@ -1,6 +1,6 @@
 -- Decker test scenario
 
-local Decker = require('Decker')
+local Decker = require('Decker.Decker')
 
 local function dummy(...) return ... end
 if not spawnObjectJSON then
@@ -40,7 +40,7 @@ local deck4 = Decker.Deck({cards1[1], cards2[1], cards2[2]})
 assert(deck1:getAssets()[1].id == cardAsset1.id, 'deck:getAssets generated a new ID')
 assert(#deck4:getAssets() == 2, 'deck:getAssets returned wrong number of assets')
 
-local _x = -15
+local _x = -20
 local function nextPos()
     local next = {_x, 3, 0}
     _x = _x + 5
@@ -86,6 +86,23 @@ function onLoad()
 
     expectOrder( {'sideways\nthree' },
     Decker.Card(cardAsset1, 2, 1, {name = 'card three', sideways = true}):spawn(nextPos()) )
+
+    local names = {'one', 'two', 'three', 'four'}
+    local namedCards = {
+        Decker.Card(cardAsset1, 1, 1, {name = names[1]}),
+        Decker.Card(cardAsset1, 1, 2, {name = names[2]}),
+        Decker.Card(cardAsset1, 2, 1, {name = names[3]}),
+        Decker.Card(cardAsset1, 2, 2, {name = names[4]}),
+    }
+    local function testSort(a, b)
+        return a < b
+    end
+    local function testCardSort(cardOne, cardTwo)
+        return testSort(cardOne.Nickname, cardTwo.Nickname)   
+    end
+    table.sort(names, testSort)
+    expectOrder( names,
+    Decker.Deck(namedCards):sort(testCardSort):spawn(nextPos()) )
 
     Wait.time(rotateAll, 1)
 end
