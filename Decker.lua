@@ -258,7 +258,7 @@ local deckMeta = {
         return self:_recache()
     end,
     -- rebuild self.data.CustomDeck based on contained cards
-    _rescanDeckIDs = function(self, id)
+    _rescanUsedDecks = function(self)
         local cardIDs = {}
         for k,card in ipairs(self.data.ContainedObjects) do
             local cardID = next(card.CustomDeck)
@@ -270,6 +270,14 @@ local deckMeta = {
         -- FIXME if someone does shitton of removals, may cause performance issues?
         self.data.CustomDeck = cardIDs
     end,
+    -- rebuild self.data.DeckIDs based on contained cards
+    _rescanDeckIDs = function(self)
+        local deckIDs = {}
+        for _, card in ipairs(self.data.ContainedObjects) do
+            table.insert(deckIDs, card.CardID)
+        end
+        self.data.DeckIDs = deckIDs
+    end,
     remove = function(self, ind, skipRescan)
         local rind = self:index(ind)
         assert(rind > 0 and rind <= self:count(), 'DeckObj.remove: index ' .. ind .. ' out of bounds')
@@ -277,7 +285,7 @@ local deckMeta = {
         table.remove(self.data.DeckIDs, rind)
         table.remove(self.data.ContainedObjects, rind)
         if not skipRescan then
-            self:_rescanDeckIDs(next(card.CustomDeck))
+            self:_rescanUsedDecks()
         end
         return self:_recache()
     end,
@@ -287,7 +295,7 @@ local deckMeta = {
         for _,ind in ipairs(indices) do
             self:remove(ind, true)
         end
-        self:_rescanDeckIDs()
+        self:_rescanUsedDecks()
         return self:_recache()
     end,
     insert = function(self, card, ind)
@@ -309,6 +317,11 @@ local deckMeta = {
             s = s+1
             e = e-1
         end
+        return self:_recache()
+    end,
+    sort = function(self, sortFunction)
+        table.sort(self.data.ContainedObjects, sortFunction)
+        self:_rescanDeckIDs()
         return self:_recache()
     end,
     cardAt = function(self, ind)
