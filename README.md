@@ -12,8 +12,8 @@ Change any card/deck images in the script instead of re-importing all of it agai
 
 ### Example code
 ```lua
--- Use Atom plugin command below or paste decker.ttslua code there
-#include Decker
+-- Use and IDE plugin supporting require or paste decker.ttslua code there
+local Decker = require('Decker.Decker')
 
 -- open in browser to see what these links depict
 local cardFaces = 'https://i.imgur.com/wiyVst7.png'
