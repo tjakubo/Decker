@@ -1,8 +1,7 @@
 -- Decker test scenario
 
-if dofile then
-    dofile 'Decker.ttslua'
-end
+local Decker = require('Decker')
+
 local function dummy(...) return ... end
 if not spawnObjectJSON then
     spawnObjectJSON = function() return {highlightOn = dummy} end
