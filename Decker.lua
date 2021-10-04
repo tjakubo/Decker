@@ -1,12 +1,28 @@
 local Decker = {}
 
 -- provide unique ID starting from 20 for present decks
-local nextID
+local nextID, recheckNextID
 do
     local _nextID = 20
     nextID = function()
         _nextID = _nextID + 1
         return tostring(_nextID)
+    end
+    
+    local function recheckObjNextDeckID(obj)
+        for deckID in pairs(obj.getData().CustomDeck or {}) do
+            if deckID >= _nextID then
+                _nextID = deckID
+            end
+        end        
+    end
+    
+    recheckNextID = function()
+        local initialNextID = _nextID
+        for _, obj in ipairs(getAllObjects()) do
+            recheckObjNextDeckID(obj)
+        end
+        return _nextID > initialNextID
     end
 end
 
@@ -401,5 +417,7 @@ function Decker.AssetDeck(asset, cardNum, options)
     end
     return Decker.Deck(cards, options)
 end
+
+Decker.RescanExistingDeckIDs = recheckNextID
 
 return Decker
