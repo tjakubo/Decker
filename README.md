@@ -12,8 +12,8 @@ Change any card/deck images in the script instead of re-importing all of it agai
 
 ### Example code
 ```lua
--- Use Atom plugin command below or paste decker.ttslua code there
-#include Decker
+-- Use and IDE plugin supporting require or paste decker.ttslua code there
+local Decker = require('Decker.Decker')
 
 -- open in browser to see what these links depict
 local cardFaces = 'https://i.imgur.com/wiyVst7.png'
@@ -113,12 +113,17 @@ Decker does not do extensive assertions on passed arguments and will probably ca
   * Arg ``cardsNum (assetSize)``: number of cards in this deck (goes sequentially over cards in asset, row by row)
   * Arg ``commonParams`` (optional) table of object properties, see [Common Params Table](#common-params-table) section
   * Returns created ``DeckerDeck`` object
+  
+* ``Decker.RescanExistingDeckIDs()``
+  * Looks through existing objects on a table, adjusting internals to avoid clashing "DeckIDs" when creating assets
+  * Sometimes might need to be called (once), after non-Decker decks are already spawned but before Decker.Asset-s are created
+  * Returns ``true`` if a potentially clashing deck was found, ``false`` otherwise
 
 #### Object methods
 
 * ``DeckerCard:spawn(table spawnParams) and DeckerDeck:spawn(table spawnParams)``
   * Spawns the object on the table, you can still modify/spawn it more afterwards
-  * Arg ``spawnParams``: table of ``parameters`` for [spawnObjectJSON](https://api.tabletopsimulator.com/base/#spawnobjectjson)
+  * Arg ``spawnParams``: table of ``parameters`` for [spawnObjectJSON](https://api.tabletopsimulator.com/base/#spawnobjectjson) or [spawnObjectData](https://api.tabletopsimulator.com/base/#spawnobjectdata)
   * Returns a TTS [object](https://api.tabletopsimulator.com/object/) of the spawned card
   * Keep in mind objects may not be immediately ready, see [object.spawning](https://api.tabletopsimulator.com/object/#member-variables)
 
@@ -163,6 +168,11 @@ Decker does not do extensive assertions on passed arguments and will probably ca
 * ``DeckerDeck:reverse()``
   * Reverses a ``DeckerDeck`` card order (basically swapping cards end-to-end)
   * Returns ``self`` for chaining methods
+  
+* ``DeckerDeck:sort(sortFunction)``
+  * Sorts cards in a ``DeckerDeck`` based on a provided comparison function
+  * Sort function receives raw data table of each compared card, see e.g. `log(soemCard.getData())`
+  * Returns ``self`` for chaining methods 
 
 * ``DeckerDeck:getAssets()``
   * Returns a table of all ``asset``s on cards in this deck

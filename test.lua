@@ -1,8 +1,7 @@
 -- Decker test scenario
 
-if dofile then
-    dofile 'Decker.ttslua'
-end
+local Decker = require('Decker.Decker')
+
 local function dummy(...) return ... end
 if not spawnObjectJSON then
     spawnObjectJSON = function() return {highlightOn = dummy} end
@@ -41,7 +40,7 @@ local deck4 = Decker.Deck({cards1[1], cards2[1], cards2[2]})
 assert(deck1:getAssets()[1].id == cardAsset1.id, 'deck:getAssets generated a new ID')
 assert(#deck4:getAssets() == 2, 'deck:getAssets returned wrong number of assets')
 
-local _x = -15
+local _x = -20
 local function nextPos()
     local next = {_x, 3, 0}
     _x = _x + 5
@@ -79,8 +78,11 @@ function onLoad()
     expectOrder( {'back'},
     cards1[3]:copy():setAsset(cardAsset2):setCommon({ name = 'back', desc = 'back desc' }):spawn(nextPos()) )
 
+    local bootlegAsset = Decker.Asset(cardFaces, cardBack, {width = 2, height = 2})
+    local bumpedUpId = 60
+    bootlegAsset.id = tostring(bumpedUpId)
     expectOrder( {3},
-    cards1[3]:spawn(nextPos()) )
+    cards1[3]:setAsset(bootlegAsset):spawn(nextPos()) )
 
     expectOrder( {'card', 1, 2},
     deck4:copy():switchAssets({[cardAsset1] = cardAsset2, [cardAsset2] = cardAsset1}):spawn(nextPos()) )
@@ -88,7 +90,32 @@ function onLoad()
     expectOrder( {'sideways\nthree' },
     Decker.Card(cardAsset1, 2, 1, {name = 'card three', sideways = true}):spawn(nextPos()) )
 
+    local names = {'one', 'two', 'three', 'four'}
+    local namedCards = {
+        Decker.Card(cardAsset1, 1, 1, {name = names[1]}),
+        Decker.Card(cardAsset1, 1, 2, {name = names[2]}),
+        Decker.Card(cardAsset1, 2, 1, {name = names[3]}),
+        Decker.Card(cardAsset1, 2, 2, {name = names[4]}),
+    }
+    local function testSort(a, b)
+        return a < b
+    end
+    local function testCardSort(cardOne, cardTwo)
+        return testSort(cardOne.Nickname, cardTwo.Nickname)   
+    end
+    table.sort(names, testSort)
+    expectOrder( names,
+    Decker.Deck(namedCards):sort(testCardSort):spawn(nextPos()) )
+
     Wait.time(rotateAll, 1)
+    
+    local function testDeckIdRescan()
+        assert(tonumber(Decker.Asset('test', 'one').id) < bumpedUpId, 'Bumped up ID too low')
+        assert(Decker.RescanExistingDeckIDs(), 'Decker did not find bumped up DeckID')
+        assert(tonumber(Decker.Asset('test', 'otwo').id) > bumpedUpId, 'Bumped up ID did not affect new asset')
+        print('DeckID rescan OK')
+    end
+    Wait.time(testDeckIdRescan, 2)
 end
 function rotateAll()
     for _,obj in ipairs(getAllObjects()) do

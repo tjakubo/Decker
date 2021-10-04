@@ -1,5 +1,5 @@
--- Use Atom plugin command below or paste decker.ttslua code there
-#include Decker
+-- Use and IDE plugin supporting require or paste decker.ttslua code there
+local Decker = require('Decker.Decker')
 
 -- open in browser to see what these links depict
 local cardFaces = 'https://i.imgur.com/wiyVst7.png'
@@ -35,6 +35,12 @@ function onChat()
 end
 
 function advancedExample()
+    -- sort cards in myDeck based on their name (alphabetically)
+    local function alphabeticalNameCardSort(cardOne, cardTwo)
+        return cardOne.Nickname < cardTwo.Nickname
+    end
+    myDeck:sort(alphabeticalNameCardSort)
+    
     -- all :spawn methods return a regular object - proceed like with anything
     local someDeck = myDeck:spawn({position = {0, 3, -6}})
     someDeck.highlightOn({0, 0, 1}, 10)
