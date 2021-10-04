@@ -78,8 +78,11 @@ function onLoad()
     expectOrder( {'back'},
     cards1[3]:copy():setAsset(cardAsset2):setCommon({ name = 'back', desc = 'back desc' }):spawn(nextPos()) )
 
+    local bootlegAsset = Decker.Asset(cardFaces, cardBack, {width = 2, height = 2})
+    local bumpedUpId = 60
+    bootlegAsset.id = tostring(bumpedUpId)
     expectOrder( {3},
-    cards1[3]:spawn(nextPos()) )
+    cards1[3]:setAsset(bootlegAsset):spawn(nextPos()) )
 
     expectOrder( {'card', 1, 2},
     deck4:copy():switchAssets({[cardAsset1] = cardAsset2, [cardAsset2] = cardAsset1}):spawn(nextPos()) )
@@ -105,6 +108,14 @@ function onLoad()
     Decker.Deck(namedCards):sort(testCardSort):spawn(nextPos()) )
 
     Wait.time(rotateAll, 1)
+    
+    local function testDeckIdRescan()
+        assert(tonumber(Decker.Asset('test', 'one').id) < bumpedUpId, 'Bumped up ID too low')
+        assert(Decker.RescanExistingDeckIDs(), 'Decker did not find bumped up DeckID')
+        assert(tonumber(Decker.Asset('test', 'otwo').id) > bumpedUpId, 'Bumped up ID did not affect new asset')
+        print('DeckID rescan OK')
+    end
+    Wait.time(testDeckIdRescan, 2)
 end
 function rotateAll()
     for _,obj in ipairs(getAllObjects()) do
