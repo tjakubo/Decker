@@ -113,6 +113,11 @@ Decker does not do extensive assertions on passed arguments and will probably ca
   * Arg ``cardsNum (assetSize)``: number of cards in this deck (goes sequentially over cards in asset, row by row)
   * Arg ``commonParams`` (optional) table of object properties, see [Common Params Table](#common-params-table) section
   * Returns created ``DeckerDeck`` object
+  
+* ``Decker.RescanExistingDeckIDs()``
+  * Looks through existing objects on a table, adjusting internals to avoid clashing "DeckIDs" when creating assets
+  * Sometimes might need to be called (once), after non-Decker decks are already spawned but before Decker.Asset-s are created
+  * Returns ``true`` if a potentially clashing deck was found, ``false`` otherwise
 
 #### Object methods
 
@@ -163,6 +168,11 @@ Decker does not do extensive assertions on passed arguments and will probably ca
 * ``DeckerDeck:reverse()``
   * Reverses a ``DeckerDeck`` card order (basically swapping cards end-to-end)
   * Returns ``self`` for chaining methods
+  
+* ``DeckerDeck:sort(sortFunction)``
+  * Sorts cards in a ``DeckerDeck`` based on a provided comparison function
+  * Sort function receives raw data table of each compared card, see e.g. `log(soemCard.getData())`
+  * Returns ``self`` for chaining methods 
 
 * ``DeckerDeck:getAssets()``
   * Returns a table of all ``asset``s on cards in this deck
