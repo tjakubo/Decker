@@ -88,6 +88,8 @@ function Decker.BaseObject()
         },
         Nickname = '',
         Description = '',
+        Value = 0,
+        Tags = {},
         ColorDiffuse = { r = 1, g = 1, b = 1 },
         Locked = false,
         Grid = true,
@@ -106,6 +108,8 @@ end
 -- Typical paramters map with defaults
 local commonMap = {
     name   = {field = 'Nickname',    default = ''},
+    value   = {field = 'Value',    default = 0},
+    tags   = {field = 'Tags',   default = {}},
     desc   = {field = 'Description', default = ''},
     script = {field = 'LuaScript',   default = ''},
     xmlui  = {field = 'XmlUI',       default = ''},

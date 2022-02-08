@@ -209,6 +209,8 @@ Setting any key outside of the range listed below (plus ``sideways`` for ``Decke
 ``commonParams`` table can consists of keys:
 * ``name``: string, name of the object, default empty
 * ``desc``: string, description of the object, default empty
+* ``value``: string, value of the object, default 0
+* ``tags``: table of strings, tags of the object, default empty table
 * ``locked``: bool, if the object is locked when spawned, default false
 * ``script``: string, lua script on the object, default empty
 * ``xmlui``: string, XML UI code of the object, default empty
