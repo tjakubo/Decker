@@ -88,6 +88,8 @@ function Decker.BaseObject()
         },
         Nickname = '',
         Description = '',
+        Value = 0,
+        Tags = {},
         ColorDiffuse = { r = 1, g = 1, b = 1 },
         Locked = false,
         Grid = true,
@@ -107,6 +109,7 @@ end
 local commonMap = {
     name   = {field = 'Nickname',    default = ''},
     value   = {field = 'Value',    default = 0},
+    tags   = {field = 'Tags',   default = {}},
     desc   = {field = 'Description', default = ''},
     script = {field = 'LuaScript',   default = ''},
     xmlui  = {field = 'XmlUI',       default = ''},
@@ -115,7 +118,6 @@ local commonMap = {
     tooltip = {field = 'Tooltip', default = true},
     guid    = {field = 'GUID',    default = 'deadbf'},
     hands   = {field = 'Hands',   default = true},
-    tags   = {field = 'Tags',   default = {}},
 }
 -- Apply some basic parameters on base JSON object
 function Decker.SetCommonOptions(obj, options)
